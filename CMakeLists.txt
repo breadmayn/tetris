@@ -5,9 +5,6 @@ project(Tetris VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# include the include directory which contains all the header files
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
 # gather all of the source files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
@@ -22,6 +19,10 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp)
-target_compile_features(main PRIVATE cxx_std_17)
-target_link_libraries(main PRIVATE SFML::Graphics)
+add_executable(tetris ${SOURCES})
+
+# include the include directory which contains all the header files
+target_include_directories(tetris PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+target_compile_features(tetris PRIVATE cxx_std_17)
+target_link_libraries(tetris PRIVATE SFML::Graphics)
