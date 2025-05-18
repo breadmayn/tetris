@@ -40,3 +40,27 @@ void GameBoard::lockPiece(Tetromino& block)
 
     block.lock();
 }
+
+bool GameBoard::tryToMoveHoriz(Tetromino& block, bool isLeft)
+{
+    auto currentPos = block.getPosition();
+    auto [startingX, startingY] = currentPos;
+
+    startingY = isLeft ? startingY - 1 : startingY + 1;
+
+    int newX, newY;
+
+    for (const auto& [incX, incY] : block.getBlockOffsets())
+    {
+        newX = startingX + incX;
+        newY = startingY + incY;
+
+        // out of bounds and collision checking
+
+        if (newY >= numCols || newY < 0 || grid[newX][newY].state != BlockState::Empty) return false;
+    }
+
+    // if all pieces are not colliding with others and in bounds then move the block
+    block.move(isLeft);
+    return true;
+}

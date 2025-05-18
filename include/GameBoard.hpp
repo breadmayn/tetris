@@ -17,4 +17,6 @@ public:
     bool tryToMoveDown(Tetromino& block);
 
     void lockPiece(Tetromino& block);
+
+    bool tryToMoveHoriz(Tetromino& block, bool isLeft);
 };

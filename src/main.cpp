@@ -40,8 +40,15 @@ int main()
             {
                 const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
 
-                // TODO: add the keyboard input handling
                 // NOTE: possibly make this parse through a map of user control preferences
+                if (keyEvent->scancode == sf::Keyboard::Scan::Left)
+                {
+                    if (board.tryToMoveHoriz(currentBlock, true)) hasChanged = true;
+                }
+                else if (keyEvent->scancode == sf::Keyboard::Scan::Right)
+                {
+                    if (board.tryToMoveHoriz(currentBlock, false)) hasChanged = true;
+                }
             }
         }
 
@@ -49,9 +56,9 @@ int main()
         if (currentBlock.isLocked())
         {
             currentBlock = Tetromino(tetrominoGenerator.next());
-            
+
             hasChanged = true;
-            clock.restart(); // reset clock?
+            clock.restart();
         }
 
         // handle the tickrate of the game by dropping pieces
@@ -68,7 +75,6 @@ int main()
 
         
         // update the grid accordinly if it has changed
-        // NOTE: this might be wrong for getting game state to stay the same
         if (hasChanged)
         {
             hasChanged = false;

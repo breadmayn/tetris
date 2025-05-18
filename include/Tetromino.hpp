@@ -30,4 +30,6 @@ public:
     void moveDown();
 
     void lock();
+
+    void move(bool isLeft);
 };
