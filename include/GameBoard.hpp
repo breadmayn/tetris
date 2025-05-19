@@ -19,4 +19,6 @@ public:
     void lockPiece(Tetromino& block);
 
     bool tryToMoveHoriz(Tetromino& block, bool isLeft);
+
+    bool tryRotate(Tetromino& block, int rotation);
 };

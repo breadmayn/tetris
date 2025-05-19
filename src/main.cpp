@@ -49,6 +49,18 @@ int main()
                 {
                     if (board.tryToMoveHoriz(currentBlock, false)) hasChanged = true;
                 }
+                else if (keyEvent->scancode == sf::Keyboard::Scan::X)
+                {
+                    if (board.tryRotate(currentBlock, 1)) hasChanged = true;
+                }
+                else if (keyEvent->scancode == sf::Keyboard::Scan::Z)
+                {
+                    if (board.tryRotate(currentBlock, 3)) hasChanged = true;
+                }
+                else if (keyEvent->scancode == sf::Keyboard::Scan::C)
+                {
+                    if (board.tryRotate(currentBlock, 2)) hasChanged = true;
+                }
             }
         }
 

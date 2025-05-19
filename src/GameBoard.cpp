@@ -64,3 +64,25 @@ bool GameBoard::tryToMoveHoriz(Tetromino& block, bool isLeft)
     block.move(isLeft);
     return true;
 }
+
+bool GameBoard::tryRotate(Tetromino& block, int rotation)
+{
+    auto currentPos = block.getPosition();
+    auto [startingX, startingY] = currentPos;
+
+    int newX, newY;
+
+    for (const auto& [offsetX, offsetY] : block.getRotation(rotation))
+    {
+        newX = startingX + offsetX;
+        newY = startingY + offsetY;
+
+        // out of bounds and collision checking
+        if (newX >= numRows) return false;
+
+        if (newY < 0 || newY >= numCols || grid[newX][newY].state != BlockState::Empty) return false;
+    }
+
+    block.setRotationState(rotation);
+    return true;
+}

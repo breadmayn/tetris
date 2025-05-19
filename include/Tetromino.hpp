@@ -16,8 +16,9 @@ private:
 public:
     Tetromino(BlockState type);
 
-    int getRotationState();
-    bool hasRotated();
+    void setRotationState(int rotationInc);
+
+    std::array<sf::Vector2<int>, 4> getRotation(int rotationInc);
 
     bool isLocked();
 

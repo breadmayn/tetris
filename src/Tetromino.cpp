@@ -2,7 +2,7 @@
 
 #include <array>
 
-const std::array<std::array<std::array<sf::Vector2<int>, 4>, 4>, 7> shapes {{
+static const std::array<std::array<std::array<sf::Vector2<int>, 4>, 4>, 7> shapes {{
     {{
         // BlockState::I
         {{ {0, -1}, {0, 0}, {0, 1}, {0, 2} }},
@@ -34,7 +34,7 @@ const std::array<std::array<std::array<sf::Vector2<int>, 4>, 4>, 7> shapes {{
     {{
         // BlockState::Z
         {{ {-1, -1}, {-1, 0}, {0, 0}, {0, 1} }},
-        {{ {-1, 1}, {0, 0}, {0, 1}, {1, 1} }},
+        {{ {-1, 1}, {0, 0}, {0, 1}, {1, 0} }},
         {{ {-1, -1}, {-1, 0}, {0, 0}, {0, 1} }},
         {{ {-1, 0}, {0, -1}, {0, 0}, {1, -1} }}
     }},
@@ -58,7 +58,7 @@ Tetromino::Tetromino(BlockState type): type(type)
 {
     if (type == BlockState::O || type == BlockState::I)
         position = { 0 , 4 };
-    else position = { 1 , 4};
+    else position = { 1 , 4 };
     
     rotationState = 0;
     prevRotationState = 0;
@@ -66,9 +66,12 @@ Tetromino::Tetromino(BlockState type): type(type)
     locked = false;
 }
 
-int Tetromino::getRotationState() { return rotationState; }
+void Tetromino::setRotationState(int rotationInc) { rotationState = (rotationState + rotationInc) % 4; }
 
-bool Tetromino::hasRotated() { return prevRotationState != rotationState; }
+std::array<sf::Vector2<int>, 4> Tetromino::getRotation(int rotationInc)
+{
+    return shapes[static_cast<int>(type) - 1][(rotationState + rotationInc) % 4];
+}
 
 bool Tetromino::isLocked() { return locked; }
 
