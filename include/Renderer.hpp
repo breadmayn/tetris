@@ -20,14 +20,10 @@ private:
 
     float cellLen; // the actual length of each side of the cell (cellSize - gridLineWidth)
 
-    std::array<sf::Vector2<float>, 4> prevBlock;
-
 public:
     Renderer(sf::RenderWindow& window, float size);
 
     void drawInitialGameBoard(sf::RenderWindow& window, const GameBoard& board);
 
-    void drawFallingTetromino(sf::RenderWindow& window, Tetromino& block);
-
-    void erasePrev(sf::RenderWindow& window);
+    void drawTetromino(sf::RenderWindow& window, Tetromino& block, bool isGhost);
 };

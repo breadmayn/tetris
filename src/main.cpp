@@ -88,17 +88,20 @@ int main()
             }
             else board.lockPiece(currentBlock);
         }
-
         
         // update the grid accordinly if it has changed
         if (hasChanged)
         {
             hasChanged = false;
-
+            
             window.clear(sf::Color(100, 100, 100));
-
+            
             renderer.drawInitialGameBoard(window, board);
-            renderer.drawFallingTetromino(window, currentBlock);
+            renderer.drawTetromino(window, currentBlock, false);
+            
+            // ghost peice lives here because ghost doesnt change unless the falling one has changed
+            Tetromino ghost = board.getGhostPiece(currentBlock);
+            if (!currentBlock.isLocked()) renderer.drawTetromino(window, ghost, true);
 
             window.display();
         }

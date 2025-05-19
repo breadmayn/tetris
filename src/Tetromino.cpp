@@ -83,6 +83,8 @@ BlockState Tetromino::getType() { return type; }
 
 void Tetromino::moveDown() { position.x++; }
 
+void Tetromino::moveUp() { position.x--; }
+
 void Tetromino::lock() { locked = true; }
 
 void Tetromino::move(bool isLeft) { position.y = isLeft ? position.y - 1 : position.y + 1; }

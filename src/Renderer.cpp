@@ -48,22 +48,17 @@ void Renderer::drawInitialGameBoard(sf::RenderWindow& window, const GameBoard& b
     }
 }
 
-void Renderer::drawFallingTetromino(sf::RenderWindow& window, Tetromino& block)
+void Renderer::drawTetromino(sf::RenderWindow& window, Tetromino& block, bool isGhost)
 {
-    auto currentPos = block.getPosition();
-    auto [startingX, startingY] = currentPos;
-
-    auto offsets = block.getBlockOffsets();
+    auto [startingX, startingY] = block.getPosition();
 
     sf::Vector2<float> cellDimensions { cellLen, cellLen };
     sf::Vector2<float> cellPosition;
 
-    int newX, newY, count = 0;
+    int newX, newY;
 
-    for (const auto& offset : offsets)
+    for (const auto& [incX, incY] : block.getBlockOffsets())
     {
-        auto [incX, incY] = offset;
-
         newX = startingX + incX;
         newY = startingY + incY;
         
@@ -74,26 +69,16 @@ void Renderer::drawFallingTetromino(sf::RenderWindow& window, Tetromino& block)
             yOffset + newX * cellSize + gridLineWidth / 2
         };
 
-        prevBlock[count++] = cellPosition;
+        sf::Color cellColor = colorMap.at(block.getType());
 
         cell.setSize(cellDimensions);
         cell.setPosition(cellPosition);
-        cell.setFillColor(colorMap.at(block.getType()));
-
-        window.draw(cell);
-    }
-}
-
-void Renderer::erasePrev(sf::RenderWindow& window)
-{
-    sf::Vector2<float> cellDimensions { cellLen, cellLen };
-    for (const auto& pos : prevBlock)
-    {
-        sf::RectangleShape cell;
-
-        cell.setSize(cellDimensions);
-        cell.setPosition(pos);
-        cell.setFillColor(colorMap.at(BlockState::Empty));
+        if (!isGhost) cell.setFillColor(cellColor);
+        else 
+        {
+            cellColor.a = 80;
+            cell.setFillColor(cellColor);
+        }
 
         window.draw(cell);
     }

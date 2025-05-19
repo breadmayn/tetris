@@ -30,6 +30,8 @@ public:
 
     void moveDown();
 
+    void moveUp();
+
     void lock();
 
     void move(bool isLeft);

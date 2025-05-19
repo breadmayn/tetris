@@ -14,13 +14,15 @@ public:
 
     inline const std::vector<std::vector<Block>>& getGrid() const { return grid; }
 
-    bool tryToMoveDown(Tetromino& block);
+    bool tryToMoveDown(Tetromino& block) const;
 
     void lockPiece(Tetromino& block);
 
-    bool tryToMoveHoriz(Tetromino& block, bool isLeft);
+    bool tryToMoveHoriz(Tetromino& block, bool isLeft) const;
 
-    bool tryRotate(Tetromino& block, int rotation);
+    bool tryRotate(Tetromino& block, int rotation) const;
 
-    bool canPlace(Tetromino& block);
+    bool canPlace(Tetromino& block) const;
+
+    Tetromino getGhostPiece(const Tetromino& block) const;
 };

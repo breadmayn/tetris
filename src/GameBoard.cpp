@@ -1,6 +1,6 @@
 #include "GameBoard.hpp"
 
-bool GameBoard::tryToMoveDown(Tetromino& block)
+bool GameBoard::tryToMoveDown(Tetromino& block) const
 {
     auto [startingX, startingY] = block.getPosition();
 
@@ -39,7 +39,7 @@ void GameBoard::lockPiece(Tetromino& block)
     block.lock();
 }
 
-bool GameBoard::tryToMoveHoriz(Tetromino& block, bool isLeft)
+bool GameBoard::tryToMoveHoriz(Tetromino& block, bool isLeft) const
 {
     auto [startingX, startingY] = block.getPosition();
 
@@ -62,7 +62,7 @@ bool GameBoard::tryToMoveHoriz(Tetromino& block, bool isLeft)
     return true;
 }
 
-bool GameBoard::tryRotate(Tetromino& block, int rotation)
+bool GameBoard::tryRotate(Tetromino& block, int rotation) const 
 {
     auto [startingX, startingY] = block.getPosition();
 
@@ -83,7 +83,7 @@ bool GameBoard::tryRotate(Tetromino& block, int rotation)
     return true;
 }
 
-bool GameBoard::canPlace(Tetromino& block)
+bool GameBoard::canPlace(Tetromino& block) const
 {
     auto [startingX, startingY] = block.getPosition();
 
@@ -100,4 +100,15 @@ bool GameBoard::canPlace(Tetromino& block)
     }
 
     return true;
+}
+
+Tetromino GameBoard::getGhostPiece(const Tetromino& block) const
+{
+    Tetromino ghost = block; // copy
+
+    while (canPlace(ghost)) ghost.moveDown();
+
+    ghost.moveUp();
+
+    return ghost;
 }

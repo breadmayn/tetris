@@ -1,5 +1,6 @@
 #include "define.hpp"
 
+
 const std::unordered_map<BlockState, sf::Color> colorMap {
     {BlockState::Empty, sf::Color(50, 50, 50)},
     {BlockState::I, sf::Color::Cyan},
