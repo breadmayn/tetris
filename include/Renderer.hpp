@@ -10,20 +10,25 @@
 
 class Renderer {
 private:
-    const sf::Color gridLineColor { sf::Color::Black };
-    const float gridLineWidth { 2.0f };
-    
-    float cellSize; // passed in argument for cell size
+    sf::RenderWindow* window; // pointer to window object to reduce passing in as arg
+    float cellSize; // passed in argument with desired cell length
 
+    // offsets used to place the GameBoard in the center of the window
     float xOffset;
     float yOffset;
 
-    float cellLen; // the actual length of each side of the cell (cellSize - gridLineWidth)
+    sf::Vector2<float> cellDimensions;
+
+    /*
+        private rendering helper methods
+    */
+
+    void drawGameBoardState(const GameBoard& board) const;
+
+    void drawTetromino(const Tetromino& block, bool isGhost) const;
 
 public:
     Renderer(sf::RenderWindow& window, float size);
 
-    void drawInitialGameBoard(sf::RenderWindow& window, const GameBoard& board);
-
-    void drawTetromino(sf::RenderWindow& window, Tetromino& block, bool isGhost);
+    void render(const GameBoard& board, const Tetromino& block) const;
 };

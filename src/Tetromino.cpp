@@ -2,6 +2,14 @@
 
 #include <array>
 
+/*
+    static shapes structure which is indexed through <static_cast<int>(BlockState) - 1> which
+    will result in an array of 4 elements each element representing the offsets from the position
+    for the cells generated for each rotation
+
+    usage: shapes[static_cast<int>(BlockState)][int rotation]
+    NOTE: rotation will always be modulo 4
+*/
 static const std::array<std::array<std::array<sf::Vector2<int>, 4>, 4>, 7> shapes {{
     {{
         // BlockState::I
@@ -54,37 +62,52 @@ static const std::array<std::array<std::array<sf::Vector2<int>, 4>, 4>, 7> shape
     }}
 }};
 
+// constructor
 Tetromino::Tetromino(BlockState type): type(type)
 {
-    if (type == BlockState::O || type == BlockState::I)
-        position = { 0 , 4 };
+    if (type == BlockState::O || type == BlockState::I) position = { 0 , 4 };
     else position = { 1 , 4 };
     
     rotationState = 0;
-    prevRotationState = 0;
-
     locked = false;
 }
 
-void Tetromino::setRotationState(int rotationInc) { rotationState = (rotationState + rotationInc) % 4; }
-
-std::array<sf::Vector2<int>, 4> Tetromino::getRotation(int rotationInc)
+void Tetromino::move(int dx, int dy)
 {
-    return shapes[static_cast<int>(type) - 1][(rotationState + rotationInc) % 4];
+    position.x += dx;
+    position.y += dy;
 }
 
-bool Tetromino::isLocked() { return locked; }
+/*
+    Tetromino state getter methods
+*/
 
-sf::Vector2<int> Tetromino::getPosition() { return position; }
+BlockState Tetromino::getType() const { return type; }
 
-std::array<sf::Vector2<int>, 4> Tetromino::getBlockOffsets() { return shapes[static_cast<int>(type) - 1][rotationState]; }
+sf::Vector2<int> Tetromino::getPosition() const { return position; }
 
-BlockState Tetromino::getType() { return type; }
+bool Tetromino::isLocked() const { return locked; }
 
-void Tetromino::moveDown() { position.x++; }
+std::array<sf::Vector2<int>, 4> Tetromino::getBlockOffsets() const
+{
+    return shapes[static_cast<int>(type) - 1][rotationState];
+}
 
-void Tetromino::moveUp() { position.x--; }
+/*
+    Tetromino modifying methods
+*/
+
+void Tetromino::setRotationState(int rotationInc)
+{
+    rotationState = (rotationState + rotationInc) % 4;
+}
 
 void Tetromino::lock() { locked = true; }
 
-void Tetromino::move(bool isLeft) { position.y = isLeft ? position.y - 1 : position.y + 1; }
+void Tetromino::moveDown() { move(1, 0); }
+
+void Tetromino::moveUp() { move(-1, 0); }
+
+void Tetromino::moveLeft() { move(0, -1); }
+
+void Tetromino::moveRight() { move(0 ,1); }

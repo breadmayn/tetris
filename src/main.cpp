@@ -43,11 +43,11 @@ int main()
                 // NOTE: possibly make this parse through a map of user control preferences
                 if (keyEvent->scancode == sf::Keyboard::Scan::Left)
                 {
-                    if (board.tryToMoveHoriz(currentBlock, true)) hasChanged = true;
+                    if (board.tryMoveHoriz(currentBlock, true)) hasChanged = true;
                 }
                 else if (keyEvent->scancode == sf::Keyboard::Scan::Right)
                 {
-                    if (board.tryToMoveHoriz(currentBlock, false)) hasChanged = true;
+                    if (board.tryMoveHoriz(currentBlock, false)) hasChanged = true;
                 }
                 else if (keyEvent->scancode == sf::Keyboard::Scan::X)
                 {
@@ -87,12 +87,12 @@ int main()
         if (clock.getElapsedTime().asSeconds() >= currentTickRate)
         {
             // if we cannot move the current block down, lock it in place
-            if (board.tryToMoveDown(currentBlock))
+            if (board.tryMoveDown(currentBlock))
             {
                 hasChanged = true;
                 clock.restart();
             }
-            else board.lockPiece(currentBlock);
+            else board.lockTetromino(currentBlock);
         }
         
         // update the grid accordinly if it has changed
@@ -100,16 +100,7 @@ int main()
         {
             hasChanged = false;
             
-            window.clear(sf::Color(100, 100, 100));
-            
-            renderer.drawInitialGameBoard(window, board);
-            renderer.drawTetromino(window, currentBlock, false);
-            
-            // ghost peice lives here because ghost doesnt change unless the falling one has changed
-            Tetromino ghost = board.getGhostPiece(currentBlock);
-            if (!currentBlock.isLocked()) renderer.drawTetromino(window, ghost, true);
-
-            window.display();
+            renderer.render(board, currentBlock);
         }
     }
 }

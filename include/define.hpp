@@ -15,5 +15,3 @@ struct Block {
 
     Block(): state(BlockState::Empty) {}
 };
-
-extern const std::unordered_map<BlockState, sf::Color> colorMap;
