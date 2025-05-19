@@ -112,3 +112,12 @@ Tetromino GameBoard::getGhostPiece(const Tetromino& block) const
 
     return ghost;
 }
+
+void GameBoard::hardDrop(Tetromino& block)
+{
+    Tetromino ghost = getGhostPiece(block);
+
+    lockPiece(ghost);
+
+    block.lock(); // locking to force new piece to generate
+}

@@ -25,4 +25,6 @@ public:
     bool canPlace(Tetromino& block) const;
 
     Tetromino getGhostPiece(const Tetromino& block) const;
+
+    void hardDrop(Tetromino& block);
 };

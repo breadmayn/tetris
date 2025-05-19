@@ -61,6 +61,15 @@ int main()
                 {
                     if (board.tryRotate(currentBlock, 2)) hasChanged = true;
                 }
+                else if (keyEvent->scancode == sf::Keyboard::Scan::Space)
+                {
+                    board.hardDrop(currentBlock);
+                    hasChanged = true;
+                }
+                else if (keyEvent->scancode == sf::Keyboard::Scan::Down)
+                {
+                    
+                }
             }
         }
 
@@ -68,10 +77,7 @@ int main()
         if (currentBlock.isLocked())
         {
             currentBlock = Tetromino(tetrominoGenerator.next());
-            if (!board.canPlace(currentBlock))
-            {
-                window.close();
-            }
+            if (!board.canPlace(currentBlock)) window.close();
 
             hasChanged = true;
             clock.restart();
