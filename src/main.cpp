@@ -68,6 +68,10 @@ int main()
         if (currentBlock.isLocked())
         {
             currentBlock = Tetromino(tetrominoGenerator.next());
+            if (!board.canPlace(currentBlock))
+            {
+                window.close();
+            }
 
             hasChanged = true;
             clock.restart();

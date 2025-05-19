@@ -21,4 +21,6 @@ public:
     bool tryToMoveHoriz(Tetromino& block, bool isLeft);
 
     bool tryRotate(Tetromino& block, int rotation);
+
+    bool canPlace(Tetromino& block);
 };

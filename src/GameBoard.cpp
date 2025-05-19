@@ -2,8 +2,7 @@
 
 bool GameBoard::tryToMoveDown(Tetromino& block)
 {
-    auto currentPos = block.getPosition();
-    auto [startingX, startingY] = currentPos;
+    auto [startingX, startingY] = block.getPosition();
 
     startingX++; // try to move this down
 
@@ -25,8 +24,7 @@ bool GameBoard::tryToMoveDown(Tetromino& block)
 
 void GameBoard::lockPiece(Tetromino& block)
 {
-    auto currentPos = block.getPosition();
-    auto [startingX, startingY] = currentPos;
+    auto [startingX, startingY] = block.getPosition();
 
     int newX, newY;
 
@@ -43,8 +41,7 @@ void GameBoard::lockPiece(Tetromino& block)
 
 bool GameBoard::tryToMoveHoriz(Tetromino& block, bool isLeft)
 {
-    auto currentPos = block.getPosition();
-    auto [startingX, startingY] = currentPos;
+    auto [startingX, startingY] = block.getPosition();
 
     startingY = isLeft ? startingY - 1 : startingY + 1;
 
@@ -67,15 +64,14 @@ bool GameBoard::tryToMoveHoriz(Tetromino& block, bool isLeft)
 
 bool GameBoard::tryRotate(Tetromino& block, int rotation)
 {
-    auto currentPos = block.getPosition();
-    auto [startingX, startingY] = currentPos;
+    auto [startingX, startingY] = block.getPosition();
 
     int newX, newY;
 
-    for (const auto& [offsetX, offsetY] : block.getRotation(rotation))
+    for (const auto& [incX, incY] : block.getRotation(rotation))
     {
-        newX = startingX + offsetX;
-        newY = startingY + offsetY;
+        newX = startingX + incX;
+        newY = startingY + incY;
 
         // out of bounds and collision checking
         if (newX >= numRows) return false;
@@ -84,5 +80,24 @@ bool GameBoard::tryRotate(Tetromino& block, int rotation)
     }
 
     block.setRotationState(rotation);
+    return true;
+}
+
+bool GameBoard::canPlace(Tetromino& block)
+{
+    auto [startingX, startingY] = block.getPosition();
+
+    int newX, newY;
+
+    for (const auto& [incX, incY] : block.getBlockOffsets())
+    {
+        newX = startingX + incX;
+        newY = startingY + incY;
+
+        if (newX < 0 || newX >= numRows || newY < 0 || newY >= numCols) return false;
+
+        if (grid[newX][newY].state != BlockState::Empty) return false;
+    }
+
     return true;
 }
