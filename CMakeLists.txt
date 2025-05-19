@@ -5,6 +5,9 @@ project(Tetris VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# use to export compiler commands for intellisense
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # gather all of the source files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
