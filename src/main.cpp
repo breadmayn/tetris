@@ -5,14 +5,17 @@
 #include "Renderer.hpp"
 #include "Randomizer.hpp"
 #include "Tetromino.hpp"
+#include "InputHandler.hpp"
 
-bool hasChanged { true };
-float currentTickRate = 0.5f;
+static bool hasChanged { true };
+static float gravityTickRate = 0.5f;
 
 int main()
 {
     auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "Tetris1.0");
+
     window.setFramerateLimit(144);
+    window.setKeyRepeatEnabled(false); // disabling and creating structures to handle DAS and ARR
 
     // create GameBoard object for game logic
     GameBoard board;
@@ -26,6 +29,9 @@ int main()
     // grab the very first piece and render onto the screen
     Tetromino currentBlock(tetrominoGenerator.next());
 
+    // InputHandler object to handle all user controls during the game
+    InputHandler inputHandler(window, board, currentBlock);
+
     sf::Clock clock;
 
     while (window.isOpen())
@@ -33,45 +39,11 @@ int main()
         // while loop checking for events (inputs)
         while (const std::optional event = window.pollEvent())
         {
-            if (event->is<sf::Event::Closed>()) window.close();
-            
-            // handle keyboard inputs
-            if (event->is<sf::Event::KeyPressed>())
-            {
-                const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
-
-                // NOTE: possibly make this parse through a map of user control preferences
-                if (keyEvent->scancode == sf::Keyboard::Scan::Left)
-                {
-                    if (board.tryMoveHoriz(currentBlock, true)) hasChanged = true;
-                }
-                else if (keyEvent->scancode == sf::Keyboard::Scan::Right)
-                {
-                    if (board.tryMoveHoriz(currentBlock, false)) hasChanged = true;
-                }
-                else if (keyEvent->scancode == sf::Keyboard::Scan::X)
-                {
-                    if (board.tryRotate(currentBlock, 1)) hasChanged = true;
-                }
-                else if (keyEvent->scancode == sf::Keyboard::Scan::Z)
-                {
-                    if (board.tryRotate(currentBlock, 3)) hasChanged = true;
-                }
-                else if (keyEvent->scancode == sf::Keyboard::Scan::C)
-                {
-                    if (board.tryRotate(currentBlock, 2)) hasChanged = true;
-                }
-                else if (keyEvent->scancode == sf::Keyboard::Scan::Space)
-                {
-                    board.hardDrop(currentBlock);
-                    hasChanged = true;
-                }
-                else if (keyEvent->scancode == sf::Keyboard::Scan::Down)
-                {
-                    
-                }
-            }
+            hasChanged = inputHandler.handleEvent(event);
         }
+
+        // handling held keys
+        hasChanged |= inputHandler.update();
 
         // generate and render new piece on start or after locking prev piece into place
         if (currentBlock.isLocked())
@@ -84,7 +56,7 @@ int main()
         }
 
         // handle the tickrate of the game by dropping pieces
-        if (clock.getElapsedTime().asSeconds() >= currentTickRate)
+        if (!inputHandler.isSoftDropping() && clock.getElapsedTime().asSeconds() >= gravityTickRate)
         {
             // if we cannot move the current block down, lock it in place
             if (board.tryMoveDown(currentBlock))
