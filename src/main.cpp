@@ -8,7 +8,7 @@
 #include "InputHandler.hpp"
 
 static bool hasChanged { true };
-static float gravityTickRate = 0.5f;
+static float gravityTickRate = 0.75f;
 
 int main()
 {

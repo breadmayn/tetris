@@ -42,6 +42,7 @@ bool InputHandler::update()
     {
         float duration = keyHeldTimers[key].getElapsedTime().asSeconds();
 
+        // differentiate between das and arr timer usage
         if (das.find(key) == das.end())
         {
             // we haven't waited for dasDelay yet
