@@ -9,6 +9,7 @@ class GameBoard {
 private:
     // grid of 10x20 that backs the GameBoard
     std::array<std::array<Block, 10>, 20> grid;
+    std::array<int, 20> rowCounters;
 
 public:
     // default constructor
@@ -31,6 +32,7 @@ public:
     /*
         GameBoard modifying Tetromino methods
     */
+    void tryClearRows();
     void lockTetromino(Tetromino& block);
     void hardDrop(Tetromino& block);
 };

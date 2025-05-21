@@ -3,7 +3,10 @@
 using gridType = std::array<std::array<Block, 10>, 20>;
 
 // default constructor definition
-GameBoard::GameBoard(): grid(gridType()) {}
+GameBoard::GameBoard(): grid(gridType())
+{
+    rowCounters = { 0 };
+}
 
 // getter method for the backing grid
 const gridType& GameBoard::getGrid() const { return grid; }
@@ -98,6 +101,34 @@ Tetromino GameBoard::getGhostPiece(const Tetromino& block) const
     GameBoard modifying Tetromino methods
 */
 
+void GameBoard::tryClearRows()
+{
+    int row { numRows - 1 };
+
+    // loop through all of the rows and find a full one
+    while (row >= 0)
+    {
+        if (rowCounters[row] != 10)
+        {
+            row--;
+            continue;
+        }
+
+        // propagate the full row and its counter to the top row
+        for (int r = row; r > 0; r--)
+        {
+            grid[r] = grid[r - 1];
+            rowCounters[r] = rowCounters[r - 1];
+        }
+
+        // clear the top row and its counter
+        grid[0] = std::array<Block, 10>();
+        rowCounters[0] = 0;
+
+        // dont decrement row because multi-line clearing
+    }
+}
+
 void GameBoard::lockTetromino(Tetromino& block)
 {
     auto [startingX, startingY] = block.getPosition();
@@ -108,9 +139,15 @@ void GameBoard::lockTetromino(Tetromino& block)
         int newY = startingY + dy;
 
         grid[newX][newY].state = block.getType();
+
+        // update rowCounters
+        rowCounters[newX]++;
     }
 
     block.lock();
+
+    // now that the block is locked in place, check for row clearing
+    tryClearRows();
 }
 
 void GameBoard::hardDrop(Tetromino& block)
