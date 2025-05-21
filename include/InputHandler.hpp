@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <optional>
 
+#include "define.hpp"
 #include "GameBoard.hpp"
 
 class InputHandler {
@@ -13,16 +14,18 @@ private:
     sf::RenderWindow* window;
     GameBoard* board;
     Tetromino* currentBlock;
-
-    // input states
+    
+    // member types that contain held keystroke states
     bool softDropping;
+    std::optional<sf::Keyboard::Scan> horizHeld; // Action::LEFT and Action::RIGHT
 
-    // data structures for tracking inputs
-    std::unordered_set<sf::Keyboard::Scancode> held; // isValid for keyHeldTimers
-    std::unordered_map<sf::Keyboard::Scancode, sf::Clock> keyHeldTimers; // held keys
+    // clocks for held keystrokes
+    sf::Clock softClock;
+    sf::Clock dasClock;
 
-    // tracker if the key has already been held for dasDelay
-    std::unordered_set<sf::Keyboard::Scancode> das;
+    // flag to denote if we have held for dasTime for horizontal movement inputs
+    bool das;
+
 public:
     // constructor
     InputHandler(sf::RenderWindow& window, GameBoard& board, Tetromino& block);
@@ -33,5 +36,6 @@ public:
     // event handler
     bool handleEvent(const std::optional<sf::Event>& event);
 
-    bool update();
+    bool handleHeldKeys();
+    
 };

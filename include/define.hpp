@@ -15,3 +15,7 @@ struct Block {
 
     Block(): state(BlockState::Empty) {}
 };
+
+enum class Action {
+    LEFT, RIGHT, HARDDROP, SOFTDROP, CW_ROTATE, CCW_ROTATE, DOUBLE_ROTATE, HOLD
+};

@@ -39,11 +39,12 @@ int main()
         // while loop checking for events (inputs)
         while (const std::optional event = window.pollEvent())
         {
-            hasChanged = inputHandler.handleEvent(event);
+            // hasChanged = inputHandler.handleEvent(event); // this line causes rotation delay?
+            hasChanged |= inputHandler.handleEvent(event);
         }
 
         // handling held keys
-        hasChanged |= inputHandler.update();
+        hasChanged |= inputHandler.handleHeldKeys();
 
         // generate and render new piece on start or after locking prev piece into place
         if (currentBlock.isLocked())

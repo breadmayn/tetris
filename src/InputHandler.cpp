@@ -5,17 +5,12 @@
 static float dasDelay = 0.167f;
 static float arrRate = 0.05f;
 
-// controls enum
-enum class Action {
-    LEFT, RIGHT, HARD, SOFT, CW_ROTATE, CCW_ROTATE, DOUBLE_ROTATE, HOLD
-};
-
 // temp user preferences
 static std::unordered_map<sf::Keyboard::Scan, Action> userControls {
     {sf::Keyboard::Scan::Left, Action::LEFT},
     {sf::Keyboard::Scan::Right, Action::RIGHT},
-    {sf::Keyboard::Scan::Space, Action::HARD},
-    {sf::Keyboard::Scan::Down, Action::SOFT},
+    {sf::Keyboard::Scan::Space, Action::HARDDROP},
+    {sf::Keyboard::Scan::Down, Action::SOFTDROP},
     {sf::Keyboard::Scan::X, Action::CW_ROTATE},
     {sf::Keyboard::Scan::Z, Action::CCW_ROTATE},
     {sf::Keyboard::Scan::C, Action::DOUBLE_ROTATE},
@@ -25,79 +20,16 @@ static std::unordered_map<sf::Keyboard::Scan, Action> userControls {
 InputHandler::InputHandler(sf::RenderWindow& window, GameBoard& board, Tetromino& block):
     window(&window), board(&board), currentBlock(&block), softDropping(false)
 {
-    // NOTE: change once user control preferences are implemented
-    for (const auto& [input, _] : userControls)
-    {
-        keyHeldTimers[input] = sf::Clock();
-    }
+    // NOTE: probably need to update this for user control preferences
+    horizHeld = std::nullopt;
+
+    softClock = sf::Clock();
+    dasClock = sf::Clock();
+
+    das = false;
 }
 
 bool InputHandler::isSoftDropping() const { return softDropping; }
-
-bool InputHandler::update()
-{
-    bool didMove { false };
-
-    for (const auto& key : held)
-    {
-        float duration = keyHeldTimers[key].getElapsedTime().asSeconds();
-
-        // differentiate between das and arr timer usage
-        if (das.find(key) == das.end())
-        {
-            // we haven't waited for dasDelay yet
-            if (duration < dasDelay) continue;
-            
-            // insert into das tracker
-            das.insert(key);
-        }
-        else
-        {
-            // we have already waited dasDelay
-            if (duration < arrRate) continue;
-        }
-
-        switch (userControls[key])
-        {
-        case Action::LEFT:
-            didMove |= board->tryMoveHoriz(*currentBlock, true);
-            keyHeldTimers[key].restart();
-            break;
-        case Action::RIGHT:
-            didMove |= board->tryMoveHoriz(*currentBlock, false);
-            keyHeldTimers[key].restart();
-            break;
-        case Action::HARD:
-            board->hardDrop(*currentBlock);
-            didMove |= true;
-            keyHeldTimers[key].restart();
-            break;
-        case Action::SOFT:
-            didMove |= board->tryMoveDown(*currentBlock);
-            keyHeldTimers[key].restart();
-            break;
-        case Action::CW_ROTATE:
-            didMove |= board->tryRotate(*currentBlock, 1);
-            keyHeldTimers[key].restart();
-            break;
-        case Action::CCW_ROTATE:
-            didMove |= board->tryRotate(*currentBlock, 3);
-            keyHeldTimers[key].restart();
-            break;
-        case Action::DOUBLE_ROTATE:
-            didMove |= board->tryRotate(*currentBlock, 2);
-            keyHeldTimers[key].restart();
-            break;
-        case Action::HOLD:
-            break;
-        default: // error enum is weird
-            window->close();
-            break;
-        }
-    }
-
-    return didMove;
-}
 
 bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
 {
@@ -109,27 +41,45 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
     {
         const auto& keyPressed = event->getIf<sf::Event::KeyPressed>();
 
-        // register in held and restart timers incase the KeyPress is held
-        held.insert(keyPressed->scancode);
-        keyHeldTimers[keyPressed->scancode].restart();
+        // ensure only user controls will do something
+        if (userControls.find(keyPressed->scancode) == userControls.end()) return false;
+        Action action = userControls[keyPressed->scancode];
 
-        // perform the first event functionality
+        // handle the different action cases
         switch (userControls[keyPressed->scancode])
         {
         case Action::LEFT:
-            if (board->tryMoveHoriz(*currentBlock, true)) return true;
+            if (board->tryMoveHoriz(*currentBlock, true))
+            {
+                dasClock.restart();
+                das = false;
+
+                horizHeld = keyPressed->scancode;
+
+                return true;
+            }
             break;
         case Action::RIGHT:
-            if (board->tryMoveHoriz(*currentBlock, false)) return true;
+            if (board->tryMoveHoriz(*currentBlock, false))
+            {
+                dasClock.restart();
+                das = false;
+
+                horizHeld = keyPressed->scancode;
+
+                return true;
+            }
             break;
-        case Action::HARD:
+        case Action::HARDDROP:
             board->hardDrop(*currentBlock);
             return true;
             break;
-        case Action::SOFT:
+        case Action::SOFTDROP:
             if (board->tryMoveDown(*currentBlock))
             {
+                softClock.restart();
                 softDropping = true;
+
                 return true;
             }
             break;
@@ -149,20 +99,79 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
             break;
         }
 
-        // return false;
     }
     else if (event->is<sf::Event::KeyReleased>())
     {
-        const auto& keyReleased = event->getIf<sf::Event::KeyReleased>()->scancode;
+        const auto& keyReleased = event->getIf<sf::Event::KeyReleased>();
 
-        // un-register in held
-        held.erase(keyReleased);
+        // ensure only user controls will do something
+        if (userControls.find(keyReleased->scancode) == userControls.end()) return false;
+        Action action = userControls[keyReleased->scancode];
 
-        // un-register in tas tracker
-        das.erase(keyReleased);
+        switch (action)
+        {
+        case Action::LEFT:
+            if (horizHeld.has_value() && *horizHeld == keyReleased->scancode)
+            {
+                horizHeld = std::nullopt;
+                das = false;
+            }
+            break;
+        case Action::RIGHT:
+            if (horizHeld.has_value() && *horizHeld == keyReleased->scancode)
+            {
+                horizHeld = std::nullopt;
+                das = false;
+            }
+            break;
+        case Action::SOFTDROP:
+            softDropping = false;
+            break;
+        default:
+            break; // should put something here for error catching
+        }
 
-        softDropping = false;
     }
 
     return false;
+}
+
+bool InputHandler::handleHeldKeys()
+{
+    bool didMove { false };
+    float duration;
+
+    if (!horizHeld.has_value()) goto HANDLE_SOFT_DROP;
+
+    duration = dasClock.getElapsedTime().asSeconds();
+
+    if (!das)
+    {
+        if (duration < dasDelay) goto HANDLE_SOFT_DROP;
+
+        das = true;
+    }
+    else
+    {
+        if (duration < arrRate) goto HANDLE_SOFT_DROP;
+    }
+
+    if (*horizHeld == sf::Keyboard::Scan::Left)
+    {
+        didMove |= board->tryMoveHoriz(*currentBlock, true);
+    }
+    else if (*horizHeld == sf::Keyboard::Scan::Right)
+    {
+        didMove |= board->tryMoveHoriz(*currentBlock, false);
+    }
+
+HANDLE_SOFT_DROP:
+    if (!softDropping) return didMove;
+
+    duration = softClock.getElapsedTime().asSeconds();
+    if (duration < arrRate) return didMove;
+
+    didMove |= board->tryMoveDown(*currentBlock);
+    
+    return didMove;
 }
