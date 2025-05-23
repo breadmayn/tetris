@@ -12,10 +12,6 @@ private:
     sf::Vector2<int> position;
 
     int rotationState; // index of which rotation state current Tetromino is in (within shapes structure)
-    bool locked; // used for game logic and represents if the current piece has been locked to the board
-
-    // private method for moving Tetromino
-    void move(int dx, int dy);
 
 public:
     // default constructor
@@ -27,7 +23,6 @@ public:
     
     BlockState getType() const;
     sf::Vector2<int> getPosition() const;
-    bool isLocked() const;
 
     std::array<sf::Vector2<int>, 4> getBlockOffsets() const;
     
@@ -35,10 +30,7 @@ public:
         Tetromino modifying methods
     */
 
+    void move(int dx, int dy);
+
     void setRotationState(int rotationInc);
-    void lock();
-    void moveDown();
-    void moveUp();
-    void moveLeft();
-    void moveRight();
 };

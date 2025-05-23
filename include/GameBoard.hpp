@@ -4,6 +4,7 @@
 
 #include "define.hpp"
 #include "Tetromino.hpp"
+#include "Randomizer.hpp"
 
 class GameBoard {
 private:
@@ -11,28 +12,36 @@ private:
     std::array<std::array<Block, 10>, 20> grid;
     std::array<int, 20> rowCounters;
 
+    Randomizer tetrominoGenerator;
+    Tetromino currentTetromino;
+
+    bool toppedOut;
+
+    // private member helper methods
+    bool canPlace(const Tetromino& block) const;
+
 public:
     // default constructor
     GameBoard();
 
-    // getter method for the backing grid
+    // getter methods
     const std::array<std::array<Block, 10>, 20>& getGrid() const;
+    const Tetromino& getTetromino() const;
+    bool hasToppedOut() const;
 
     /*
         Tetromino handling methods
     */
-    bool canPlace(Tetromino& block) const;
 
-    bool tryMoveDown(Tetromino& block) const;
-    bool tryMoveHoriz(Tetromino& block, bool direction) const;
-    bool tryRotate(Tetromino& block, int rotation) const;
+    bool tryMove(int dx, int dy);
+    bool tryRotate(int rotation);
 
-    Tetromino getGhostPiece(const Tetromino& block) const;
+    Tetromino getGhost() const;
 
     /*
         GameBoard modifying Tetromino methods
     */
     void tryClearRows();
     void lockTetromino(Tetromino& block);
-    void hardDrop(Tetromino& block);
+    void hardDrop();
 };

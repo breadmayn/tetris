@@ -30,5 +30,5 @@ private:
 public:
     Renderer(sf::RenderWindow& window, float size);
 
-    void render(const GameBoard& board, const Tetromino& block) const;
+    void render(const GameBoard& board) const;
 };

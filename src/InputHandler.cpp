@@ -17,8 +17,10 @@ static std::unordered_map<sf::Keyboard::Scan, Action> userControls {
     {sf::Keyboard::Scan::LShift, Action::HOLD}
 };
 
-InputHandler::InputHandler(sf::RenderWindow& window, GameBoard& board, Tetromino& block):
-    window(&window), board(&board), currentBlock(&block), softDropping(false)
+InputHandler::InputHandler(sf::RenderWindow& window, GameBoard& board)
+    : window(&window)
+    , board(&board)
+    , softDropping(false)
 {
     // NOTE: probably need to update this for user control preferences
     horizHeld = std::nullopt;
@@ -49,7 +51,7 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
         switch (userControls[keyPressed->scancode])
         {
         case Action::LEFT:
-            if (board->tryMoveHoriz(*currentBlock, true))
+            if (board->tryMoveHoriz(true))
             {
                 dasClock.restart();
                 das = false;
@@ -60,7 +62,7 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
             }
             break;
         case Action::RIGHT:
-            if (board->tryMoveHoriz(*currentBlock, false))
+            if (board->tryMoveHoriz(false))
             {
                 dasClock.restart();
                 das = false;
@@ -71,11 +73,11 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
             }
             break;
         case Action::HARDDROP:
-            board->hardDrop(*currentBlock);
+            board->hardDrop();
             return true;
             break;
         case Action::SOFTDROP:
-            if (board->tryMoveDown(*currentBlock))
+            if (board->tryMoveDown())
             {
                 softClock.restart();
                 softDropping = true;
@@ -84,13 +86,13 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
             }
             break;
         case Action::CW_ROTATE:
-            if (board->tryRotate(*currentBlock, 1)) return true;
+            if (board->tryRotate(1)) return true;
             break;
         case Action::CCW_ROTATE:
-            if (board->tryRotate(*currentBlock, 3)) return true;
+            if (board->tryRotate(3)) return true;
             break;
         case Action::DOUBLE_ROTATE:
-            if (board->tryRotate(*currentBlock, 2)) return true;
+            if (board->tryRotate(2)) return true;
             break;
         case Action::HOLD:
             break;
@@ -158,11 +160,11 @@ bool InputHandler::handleHeldKeys()
 
     if (*horizHeld == sf::Keyboard::Scan::Left)
     {
-        didMove |= board->tryMoveHoriz(*currentBlock, true);
+        didMove |= board->tryMoveHoriz(true);
     }
     else if (*horizHeld == sf::Keyboard::Scan::Right)
     {
-        didMove |= board->tryMoveHoriz(*currentBlock, false);
+        didMove |= board->tryMoveHoriz(false);
     }
 
 HANDLE_SOFT_DROP:
@@ -171,7 +173,7 @@ HANDLE_SOFT_DROP:
     duration = softClock.getElapsedTime().asSeconds();
     if (duration < arrRate) return didMove;
 
-    didMove |= board->tryMoveDown(*currentBlock);
+    didMove |= board->tryMoveDown();
     
     return didMove;
 }

@@ -1,127 +1,115 @@
 #include "GameBoard.hpp"
 
-using gridType = std::array<std::array<Block, 10>, 20>;
-
 // default constructor definition
-GameBoard::GameBoard(): grid(gridType())
-{
-    rowCounters = { 0 };
-}
+GameBoard::GameBoard()
+    : grid(std::array<std::array<Block, 10>, 20>())
+    , rowCounters({ 0 })
+    , tetrominoGenerator(Randomizer())
+    , currentTetromino(Tetromino(tetrominoGenerator.next()))
+    , toppedOut(false)
+{}
 
-// getter method for the backing grid
-const gridType& GameBoard::getGrid() const { return grid; }
+/*
+    Class getter methods
+*/
+const std::array<std::array<Block, 10>, 20>& GameBoard::getGrid() const { return grid; }
+const Tetromino& GameBoard::getTetromino() const { return currentTetromino; }
+bool GameBoard::hasToppedOut() const { return toppedOut; }
 
 /*
     Tetromino handling methods
 */
-bool GameBoard::canPlace(Tetromino& block) const
+
+bool GameBoard::canPlace(const Tetromino& block) const
 {
+    // grab the origin point where we will use offset from for mino collision and bounds checking
     auto [startingX, startingY] = block.getPosition();
 
+    // iterate over all of the offset coordinates
     for (const auto& [dx, dy] : block.getBlockOffsets())
     {
-        int newX = startingX + dx;
-        int newY = startingY + dy;
+        int x = startingX + dx;
+        int y = startingY + dy;
 
-        // checking x coordinate bounds
-        if (newX < 0 || newX >= numRows) return false;
+        // bounds checking x
+        if (x < 0 || x >= numRows) return false;
 
-        // checking y coordinate bounds
-        if (newY < 0 || newY >= numCols) return false;
+        // bounds checking y
+        if (y < 0 || y >= numCols) return false;
 
-        // checking if the spot is empty on the grid
-        if (grid[newX][newY].state != BlockState::Empty) return false;
+        // checking for collisions with other minos
+        if (grid[x][y].state != BlockState::Empty) return false;
     }
 
     return true;
 }
 
-bool GameBoard::tryMoveDown(Tetromino& block) const
+bool GameBoard::tryMove(int xOffset, int yOffset)
 {
-    // first make a copy of the block so we don't modify the original
-    Tetromino temp = block;
-    temp.moveDown(); // move the temp Tetromino down one
+    // make a copy of currentTetromino for modification
+    Tetromino temp = currentTetromino;
 
-    // check if the new position is valid
+    // perform the move operation
+    temp.move(xOffset, yOffset);
+
+    // if the current move operation cannot be placed then return false
     if (!canPlace(temp)) return false;
 
-    // we can place a row lower so move the original block down
-    block.moveDown();
+    // the move operation is valid so we can modify currentTetromino
+    currentTetromino.move(xOffset, yOffset);
     return true;
 }
 
-// direction: true -> left, false -> right
-bool GameBoard::tryMoveHoriz(Tetromino& block, bool direction) const
+bool GameBoard::tryRotate(int rotation)
 {
-    // first make a copy of the block so we don't modify the original
-    Tetromino temp = block;
+    // make a copy of the currentTetromino for modification
+    Tetromino temp = currentTetromino;
 
-    // move the temp Tetromino to the left or right
-    if (direction) temp.moveLeft();
-    else temp.moveRight();
-
-    // check if the new position is valid
-    if (!canPlace(temp)) return false;
-
-    // we can place at the new position so update the original block
-    if (direction) block.moveLeft();
-    else block.moveRight();
-
-    return true;
-}
-
-bool GameBoard::tryRotate(Tetromino& block, int rotation) const
-{
-    // first make a copy of the block so we don't modify the original
-    Tetromino temp = block;
-
-    // rotate the temp block given the int rotation
+    // perform the rotation
     temp.setRotationState(rotation);
 
-    // check if the rotation is valid
+    // if the current rotation operation cannot be placed then return false
     if (!canPlace(temp)) return false;
 
-    // the rotation is valid so apply to the original
-    block.setRotationState(rotation);
+    // the rotation operation is valid so we can modify currentTetromino
+    currentTetromino.setRotationState(rotation);
     return true;
 }
 
-Tetromino GameBoard::getGhostPiece(const Tetromino& block) const
+Tetromino GameBoard::getGhost() const
 {
-    Tetromino ghost = block; // copy
+    // make a copy of currentTetromino to move all the way down the board
+    Tetromino ghost = currentTetromino;
 
-    while (canPlace(ghost)) ghost.moveDown();
+    while (canPlace(ghost)) ghost.move(1, 0);
 
-    ghost.moveUp();
-
+    // move one row up
+    ghost.move(-1, 0);
     return ghost;
 }
 
-/*
-    GameBoard modifying Tetromino methods
-*/
-
 void GameBoard::tryClearRows()
 {
-    int row { numRows - 1 };
+    int row { numRows - 1};
 
-    // loop through all of the rows and find a full one
+    // iterate over all the rows and find the one that is filled
     while (row >= 0)
     {
+        // check to see if the row is filled
         if (rowCounters[row] != 10)
         {
             row--;
             continue;
         }
 
-        // propagate the full row and its counter to the top row
+        // row is filled so propagate the row and its counter to the top
         for (int r = row; r > 0; r--)
         {
             grid[r] = grid[r - 1];
             rowCounters[r] = rowCounters[r - 1];
         }
 
-        // clear the top row and its counter
+        // clear the top row and reset the counter to 0
         grid[0] = std::array<Block, 10>();
         rowCounters[0] = 0;
 
@@ -131,29 +119,36 @@ void GameBoard::tryClearRows()
 
 void GameBoard::lockTetromino(Tetromino& block)
 {
+    // get the origin position of the block
     auto [startingX, startingY] = block.getPosition();
 
+    bool fullRow { false };
+
+    // iterate over the offsets for the minos
     for (const auto& [dx, dy] : block.getBlockOffsets())
     {
-        int newX = startingX + dx;
-        int newY = startingY + dy;
+        int x = startingX + dx;
+        int y = startingY + dy;
 
-        grid[newX][newY].state = block.getType();
+        grid[x][y].state = block.getType();
 
         // update rowCounters
-        rowCounters[newX]++;
+        rowCounters[x]++;
+        if (rowCounters[x] == 10) fullRow = true;
     }
 
-    block.lock();
+    // now that the block is placed onto the board, check to clear the row
+    if (fullRow) tryClearRows();
 
-    // now that the block is locked in place, check for row clearing
-    tryClearRows();
+    // generate a new piece
+    currentTetromino = Tetromino(tetrominoGenerator.next());
 }
 
-void GameBoard::hardDrop(Tetromino& block)
+void GameBoard::hardDrop()
 {
-    Tetromino ghost = getGhostPiece(block);
+    // the ghost piece is where the hard-dropped piece will go
+    Tetromino ghost = getGhost();
 
+    // lock the ghost piece
     lockTetromino(ghost);
-    block.lock(); // locking to force new piece to generate
 }

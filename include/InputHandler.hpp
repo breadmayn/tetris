@@ -13,7 +13,6 @@ class InputHandler {
 private:
     sf::RenderWindow* window;
     GameBoard* board;
-    Tetromino* currentBlock;
     
     // member types that contain held keystroke states
     bool softDropping;
@@ -28,7 +27,7 @@ private:
 
 public:
     // constructor
-    InputHandler(sf::RenderWindow& window, GameBoard& board, Tetromino& block);
+    InputHandler(sf::RenderWindow& window, GameBoard& board);
 
     // input state getter methods
     bool isSoftDropping() const;

@@ -72,12 +72,6 @@ Tetromino::Tetromino(BlockState type): type(type)
     locked = false;
 }
 
-void Tetromino::move(int dx, int dy)
-{
-    position.x += dx;
-    position.y += dy;
-}
-
 /*
     Tetromino state getter methods
 */
@@ -97,17 +91,15 @@ std::array<sf::Vector2<int>, 4> Tetromino::getBlockOffsets() const
     Tetromino modifying methods
 */
 
+void Tetromino::move(int dx, int dy)
+{
+    position.x += dx;
+    position.y += dy;
+}
+
 void Tetromino::setRotationState(int rotationInc)
 {
     rotationState = (rotationState + rotationInc) % 4;
 }
 
 void Tetromino::lock() { locked = true; }
-
-void Tetromino::moveDown() { move(1, 0); }
-
-void Tetromino::moveUp() { move(-1, 0); }
-
-void Tetromino::moveLeft() { move(0, -1); }
-
-void Tetromino::moveRight() { move(0 ,1); }

@@ -91,16 +91,17 @@ void Renderer::drawTetromino(const Tetromino& block, bool isGhost) const
     }
 }
 
-void Renderer::render(const GameBoard& board, const Tetromino& block) const
+void Renderer::render(const GameBoard& board) const
 {
+    Tetromino currentTetromino = board.getTetromino();
     window->clear(sf::Color(100, 100, 100));
 
     drawGameBoardState(board);
-    drawTetromino(block, false);
+    drawTetromino(currentTetromino, false);
 
     // handle rendering ghost if needed
-    Tetromino ghost = board.getGhostPiece(block);
-    if (!block.isLocked()) drawTetromino(ghost, true);
+    Tetromino ghost = board.getGhostPiece();
+    if (!currentTetromino.isLocked()) drawTetromino(ghost, true);
 
     window->display();
 }
