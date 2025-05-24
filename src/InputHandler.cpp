@@ -51,7 +51,7 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
         switch (userControls[keyPressed->scancode])
         {
         case Action::LEFT:
-            if (board->tryMoveHoriz(true))
+            if (board->tryMove(0, -1))
             {
                 dasClock.restart();
                 das = false;
@@ -62,7 +62,7 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
             }
             break;
         case Action::RIGHT:
-            if (board->tryMoveHoriz(false))
+            if (board->tryMove(0, 1))
             {
                 dasClock.restart();
                 das = false;
@@ -77,7 +77,7 @@ bool InputHandler::handleEvent(const std::optional<sf::Event>& event)
             return true;
             break;
         case Action::SOFTDROP:
-            if (board->tryMoveDown())
+            if (board->tryMove(1, 0))
             {
                 softClock.restart();
                 softDropping = true;
@@ -160,11 +160,11 @@ bool InputHandler::handleHeldKeys()
 
     if (*horizHeld == sf::Keyboard::Scan::Left)
     {
-        didMove |= board->tryMoveHoriz(true);
+        didMove |= board->tryMove(0, -1);
     }
     else if (*horizHeld == sf::Keyboard::Scan::Right)
     {
-        didMove |= board->tryMoveHoriz(false);
+        didMove |= board->tryMove(0, 1);
     }
 
 HANDLE_SOFT_DROP:
@@ -173,7 +173,7 @@ HANDLE_SOFT_DROP:
     duration = softClock.getElapsedTime().asSeconds();
     if (duration < arrRate) return didMove;
 
-    didMove |= board->tryMoveDown();
+    didMove |= board->tryMove(1, 0);
     
     return didMove;
 }

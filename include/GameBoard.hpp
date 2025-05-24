@@ -42,6 +42,6 @@ public:
         GameBoard modifying Tetromino methods
     */
     void tryClearRows();
-    void lockTetromino(Tetromino& block);
+    void lockTetromino(const Tetromino& block);
     void hardDrop();
 };

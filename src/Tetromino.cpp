@@ -69,7 +69,6 @@ Tetromino::Tetromino(BlockState type): type(type)
     else position = { 1 , 4 };
     
     rotationState = 0;
-    locked = false;
 }
 
 /*
@@ -79,8 +78,6 @@ Tetromino::Tetromino(BlockState type): type(type)
 BlockState Tetromino::getType() const { return type; }
 
 sf::Vector2<int> Tetromino::getPosition() const { return position; }
-
-bool Tetromino::isLocked() const { return locked; }
 
 std::array<sf::Vector2<int>, 4> Tetromino::getBlockOffsets() const
 {
@@ -101,5 +98,3 @@ void Tetromino::setRotationState(int rotationInc)
 {
     rotationState = (rotationState + rotationInc) % 4;
 }
-
-void Tetromino::lock() { locked = true; }

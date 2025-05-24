@@ -99,9 +99,9 @@ void Renderer::render(const GameBoard& board) const
     drawGameBoardState(board);
     drawTetromino(currentTetromino, false);
 
-    // handle rendering ghost if needed
-    Tetromino ghost = board.getGhostPiece();
-    if (!currentTetromino.isLocked()) drawTetromino(ghost, true);
+    // handle rendering ghost
+    Tetromino ghost = board.getGhost();
+    drawTetromino(ghost, true);
 
     window->display();
 }

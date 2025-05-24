@@ -117,7 +117,7 @@ void GameBoard::tryClearRows()
     }
 }
 
-void GameBoard::lockTetromino(Tetromino& block)
+void GameBoard::lockTetromino(const Tetromino& block)
 {
     // get the origin position of the block
     auto [startingX, startingY] = block.getPosition();
