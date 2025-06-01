@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <deque>
 
 #include "define.hpp"
 #include "Tetromino.hpp"
@@ -15,6 +16,8 @@ private:
     Randomizer tetrominoGenerator;
     Tetromino currentTetromino;
 
+    std::deque<BlockState> previewQueue;
+
     bool toppedOut;
 
     // private member helper methods
@@ -28,6 +31,7 @@ public:
     const std::array<std::array<Block, 10>, 20>& getGrid() const;
     const Tetromino& getTetromino() const;
     bool hasToppedOut() const;
+    const std::deque<BlockState>& getPreviewQueue() const;
 
     /*
         Tetromino handling methods

@@ -7,7 +7,12 @@ GameBoard::GameBoard()
     , tetrominoGenerator(Randomizer())
     , currentTetromino(Tetromino(tetrominoGenerator.next()))
     , toppedOut(false)
-{}
+{
+    while (previewQueue.size() < 5)
+    {
+        previewQueue.push_back(tetrominoGenerator.next());
+    }
+}
 
 /*
     Class getter methods
@@ -15,6 +20,7 @@ GameBoard::GameBoard()
 const std::array<std::array<Block, 10>, 20>& GameBoard::getGrid() const { return grid; }
 const Tetromino& GameBoard::getTetromino() const { return currentTetromino; }
 bool GameBoard::hasToppedOut() const { return toppedOut; }
+const std::deque<BlockState>& GameBoard::getPreviewQueue() const { return previewQueue; }
 
 /*
     Tetromino handling methods
@@ -141,7 +147,8 @@ void GameBoard::lockTetromino(const Tetromino& block)
     if (fullRow) tryClearRows();
 
     // generate a new piece
-    currentTetromino = Tetromino(tetrominoGenerator.next());
+    currentTetromino = previewQueue.front();
+    previewQueue.pop_front();
 }
 
 void GameBoard::hardDrop()
